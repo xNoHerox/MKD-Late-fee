@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#dce8f8">
+  <meta name="description" content="Расчет пеней за ЖКУ по Excel-файлу и подготовка документов для суда и досудебной претензии.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <title>Расчет пеней за ЖКУ</title>
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div><div class="ambient ambient-two" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="topbar glass">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">₽</span><span>Пени <small>ЖКУ</small></span></div>
+      <span class="privacy"><span class="privacy-dot"></span>Файлы обрабатываются в браузере</span>
+    </header>
+
+    <section class="intro">
+      <div><p class="eyebrow">РАСЧЕТ И ДОКУМЕНТЫ</p><h1>От исходного Excel<br>до расчета для суда.</h1><p class="lead">Загрузите начисления и оплаты. Проверьте спорные строки, затем скачайте расчет и досудебную претензию.</p></div>
+      <div class="intro-orb" aria-hidden="true"><span>Σ</span></div>
+    </section>
+
+    <section class="workspace">
+      <div class="left-stack">
+        <section class="glass panel upload-panel" aria-labelledby="upload-title">
+          <div class="panel-head"><div><p class="step">01 · ИСХОДНЫЙ ФАЙЛ</p><h2 id="upload-title">Загрузите Excel</h2></div><span class="file-type">.xlsx</span></div>
+          <label class="dropzone" id="dropzone" for="fileInput">
+            <span class="upload-icon" aria-hidden="true">⇧</span>
+            <strong id="uploadLabel">Перетащите файл сюда</strong>
+            <span>или нажмите, чтобы выбрать файл</span>
+            <input id="fileInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+          </label>
+          <p class="hint">Ожидаются колонки: сумма долга, срок оплаты, сумма оплаты, дата оплаты. Исходный файл не отправляется на сервер.</p>
+        </section>
+
+        <section class="glass panel" aria-labelledby="review-title">
+          <div class="panel-head"><div><p class="step">02 · ПРОВЕРКА</p><h2 id="review-title">Данные и замечания</h2></div><span class="count" id="recordCount">Нет данных</span></div>
+          <div id="issues" class="issues empty-state">После загрузки здесь появятся строки, требующие проверки.</div>
+          <div class="data-actions" id="dataActions" hidden>
+            <details class="data-details"><summary>Начисления <span id="chargeCount"></span></summary><div class="table-scroll"><table id="chargesTable"><thead><tr><th>Строка</th><th>Срок оплаты</th><th>Сумма, ₽</th><th>Учитывать</th><th>Проверка</th></tr></thead><tbody></tbody></table></div><button class="text-button" id="addCharge" type="button">+ Добавить начисление</button></details>
+            <details class="data-details"><summary>Оплаты <span id="paymentCount"></span></summary><div class="table-scroll"><table id="paymentsTable"><thead><tr><th>Строка</th><th>Дата оплаты</th><th>Сумма, ₽</th><th></th></tr></thead><tbody></tbody></table></div><button class="text-button" id="addPayment" type="button">+ Добавить оплату</button></details>
+          </div>
+        </section>
+      </div>
+
+      <div class="right-stack">
+        <section class="glass panel settings-panel" aria-labelledby="settings-title">
+          <div class="panel-head"><div><p class="step">03 · УСЛОВИЯ</p><h2 id="settings-title">Параметры расчета</h2></div></div>
+          <label class="field"><span>Дата расчета</span><input id="asOf" type="date"></label>
+          <label class="check-row"><input id="m2020" type="checkbox" checked><span><strong>Мораторий 2020 года</strong><small>Не начислять пени с 06.04 по 31.12.2020</small></span></label>
+          <label class="check-row"><input id="m2022" type="checkbox" checked><span><strong>Мораторий 2022 года</strong><small>Для долгов со сроком до 01.04.2022 при применимости к должнику</small></span></label>
+          <details class="rates-details"><summary>Справочник ключевой ставки <span id="ratesStatus"></span></summary>
+            <p class="hint">Проверьте изменения на <a href="https://www.cbr.ru/hd_base/KeyRate/" target="_blank" rel="noopener noreferrer">сайте Банка России</a>. Ставка на дату оплаты и дату расчета берется из списка ниже.</p>
+            <label class="field"><span>Ставки проверены по дату</span><input id="verifiedThrough" type="date"></label>
+            <div class="table-scroll rate-table"><table id="ratesTable"><thead><tr><th>С даты</th><th>Ставка, %</th><th></th></tr></thead><tbody></tbody></table></div>
+            <button class="text-button" id="addRate" type="button">+ Добавить изменение ставки</button>
+          </details>
+        </section>
+
+        <section class="glass panel result-panel" aria-labelledby="result-title">
+          <div class="panel-head"><div><p class="step">04 · РЕЗУЛЬТАТ</p><h2 id="result-title">Итог расчета</h2></div><span id="resultStatus" class="result-status">Ожидание файла</span></div>
+          <div class="hero-total"><span>Пени</span><strong id="penaltyTotal">—</strong></div>
+          <div class="metrics"><div><span>Основной долг</span><strong id="principalTotal">—</strong></div><div><span>Долг и пени</span><strong id="grandTotal">—</strong></div></div>
+          <p class="result-note" id="resultNote">Загрузите Excel-файл, чтобы увидеть расчет.</p>
+        </section>
+      </div>
+    </section>
+
+    <section class="glass panel documents" aria-labelledby="documents-title">
+      <div class="panel-head"><div><p class="step">05 · ДОКУМЕНТЫ</p><h2 id="documents-title">Подготовить документы</h2></div></div>
+      <div class="doc-grid">
+        <div class="doc-fields">
+          <label class="field"><span>Объект / адрес помещения</span><input id="object" type="text" placeholder="Например, Белкинская, 39–91"></label>
+          <label class="field"><span>Взыскатель / отправитель</span><input id="claimant" type="text" placeholder="ФИО или организация"></label>
+          <label class="field"><span>Адрес взыскателя</span><input id="claimantAddress" type="text" placeholder="Почтовый адрес"></label>
+          <label class="field"><span>Должник / получатель</span><input id="debtor" type="text" placeholder="ФИО или организация"></label>
+          <label class="field"><span>Адрес должника</span><input id="debtorAddress" type="text" placeholder="Почтовый адрес"></label>
+          <label class="field"><span>Дата претензии</span><input id="letterDate" type="date"></label>
+          <label class="field"><span>Срок оплаты по претензии</span><input id="deadline" type="date"></label>
+          <label class="field wide"><span>Реквизиты для оплаты</span><textarea id="paymentDetails" rows="2" placeholder="Банк, счет, получатель"></textarea></label>
+        </div>
+        <div class="doc-actions">
+          <div class="doc-card"><span class="doc-icon">▤</span><h3>Расчет для суда</h3><p>Печатная таблица с формулой, днями просрочки и ставкой по каждой части долга.</p><button id="printCourt" class="button primary" disabled>Открыть для печати / PDF</button><button id="downloadXlsx" class="button subtle" disabled>Скачать Excel</button></div>
+          <div class="doc-card"><span class="doc-icon">✉</span><h3>Досудебная претензия</h3><p>Текст требования с суммой долга, пенями, сроком оплаты и реквизитами.</p><button id="downloadDocx" class="button primary" disabled>Скачать Word</button><button id="printDemand" class="button subtle" disabled>Открыть для печати / PDF</button></div>
+        </div>
+      </div>
+      <p class="hint final-hint" id="docStatus">Перед подачей сверяйте строки с квитанциями и платежными документами. Сайт не хранит загруженные файлы.</p>
+    </section>
+    <footer><span>Расчет пеней за ЖКУ</span><span>Локальная обработка · данные остаются у вас</span></footer>
+  </main>
+  <script src="vendor/jszip.min.js"></script>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>
